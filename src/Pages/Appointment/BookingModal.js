@@ -25,7 +25,7 @@ const BookingModal = ({ treatment, date, setTreatment, refetch }) => {
             phone: event.target.phone.value
         }
 
-        fetch('http://localhost:5000/booking', {
+        fetch(' https://shrouded-mountain-98205.herokuapp.com/booking', {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'
@@ -43,7 +43,7 @@ const BookingModal = ({ treatment, date, setTreatment, refetch }) => {
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
-                        });
+                    });
                 }
                 else {
                     toast.error(`Already have an appointment on, ${data.booking?.date} at ${data.booking?.slot}`, {
@@ -82,7 +82,7 @@ const BookingModal = ({ treatment, date, setTreatment, refetch }) => {
                         </select>
                         <input name='name' type="text" disabled value={user?.displayName || "Username"} className="input input-bordered w-full max-w-xs" />
                         <input name='email' type="email" disabled value={user?.email} className="input input-bordered w-full max-w-xs" />
-                        <input name='phone' type="text" placeholder="Phone number" className="input input-bordered w-full max-w-xs" required/>
+                        <input name='phone' type="text" placeholder="Phone number" className="input input-bordered w-full max-w-xs" required />
                         <input type="submit" value="Submit" className="btn text-white bg-gradient-to-r from-secondary to-primary w-full max-w-xs border-0" />
                     </form>
                 </div>
