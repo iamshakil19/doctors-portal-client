@@ -1,10 +1,11 @@
 import React from 'react';
-import { useCreateUserWithEmailAndPassword, useSignInWithGoogle, useUpdateProfile } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword, useSendEmailVerification, useSignInWithGoogle, useUpdateProfile } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.init';
 import { useForm } from "react-hook-form";
 import Loading from '../Shared/Loading';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
+import useToken from '../../Hooks/useToken';
 
 const Register = () => {
     const navigate = useNavigate()
@@ -15,11 +16,14 @@ const Register = () => {
         loading,
         error,
     ] = useCreateUserWithEmailAndPassword(auth);
+    const [sendEmailVerification, sending] = useSendEmailVerification(auth);
 
 
     const [updateProfile, updating, updateError] = useUpdateProfile(auth);
 
     const { register, formState: { errors }, handleSubmit } = useForm();
+
+    const [token] = useToken(user || googleUser)
 
     let signErrorMessage;
 
@@ -31,15 +35,26 @@ const Register = () => {
         signErrorMessage = <p className='text-red-500'>{error?.message || googleError?.message || updateError?.message}</p>
     }
 
-    // if (user || googleUser) {
-    //     console.log(user || googleUser);
-    // }
+    if (token) {
+        navigate('/')
+    }
 
     const onSubmit = async data => {
 
         await createUserWithEmailAndPassword(data.email, data.password)
         await updateProfile({ displayName: data.name });
-        navigate('/')
+        sendEmailVerification()
+        if (sendEmailVerification) {
+            toast.success("Verification email is sent", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        }
     };
     return (
         <div className='flex justify-center items-center h-screen'>

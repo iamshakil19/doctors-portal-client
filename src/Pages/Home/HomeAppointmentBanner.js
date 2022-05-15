@@ -3,7 +3,7 @@ import doctor from '../../Resources/images/doctor.png'
 import appointment from '../../Resources/images/appointment.png'
 import PrimaryButton from '../Shared/PrimaryButton';
 import './Appointment.css'
-const Appointment = () => {
+const HomeAppointmentBanner = () => {
     return (
         <section style={{
             background: `url(${appointment}) no-repeat center fixed`
@@ -21,4 +21,4 @@ const Appointment = () => {
     );
 };
 
-export default Appointment;
+export default HomeAppointmentBanner;

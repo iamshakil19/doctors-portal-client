@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { useSignInWithEmailAndPassword, useSignInWithGoogle } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword, useSignInWithGoogle } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.init';
 import { useForm } from "react-hook-form";
 import Loading from '../Shared/Loading';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import useToken from '../../Hooks/useToken';
 
 
 const Login = () => {
@@ -13,13 +15,11 @@ const Login = () => {
     let from = location.state?.from?.pathname || "/";
 
     const [signInWithGoogle, googleUser, googleLoading, googleError] = useSignInWithGoogle(auth);
-    const [
-        signInWithEmailAndPassword,
-        user,
-        loading,
-        error,
-    ] = useSignInWithEmailAndPassword(auth);
-    const { register, formState: { errors }, handleSubmit } = useForm();
+    const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+    const { register, formState: { errors }, handleSubmit, getValues } = useForm();
+    const [sendPasswordResetEmail, sending] = useSendPasswordResetEmail(auth);
+
+    const token = useToken(user || googleUser)
 
     let signErrorMessage;
 
@@ -33,7 +33,7 @@ const Login = () => {
 
 
 
-    if (user || googleUser) {
+    if (token) {
         navigate(from, { replace: true });
     }
 
@@ -41,6 +41,32 @@ const Login = () => {
     const onSubmit = data => {
         signInWithEmailAndPassword(data.email, data.password)
     };
+
+    const handleForgotPassword = () => {
+        const email = getValues("email")
+        if (!email.length || !/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/.test(email)) {
+            return toast.error("Provide a valid email", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        }
+        sendPasswordResetEmail(getValues("email"))
+
+        toast.success("Password Reset email is sent", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+    }
 
     return (
         <div className='flex justify-center items-center h-screen'>
@@ -92,6 +118,9 @@ const Login = () => {
                                     }
                                 })}
                             />
+                            <label className="label">
+                                <span className="label-text text-blue-600 cursor-pointer"><small onClick={handleForgotPassword}>Forgot Password ?</small></span>
+                            </label>
                             <label className="label">
                                 {errors.password?.type === 'required' && <span className="label-text-alt text-red-500">{errors.password.message}</span>}
                                 {errors.password?.type === 'minLength' && <span className="label-text-alt text-red-500">{errors.password.message}</span>}
